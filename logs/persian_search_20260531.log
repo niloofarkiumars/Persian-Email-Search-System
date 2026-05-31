@@ -1,0 +1,9 @@
+2026-05-31 14:18:51 - PersianSearch - INFO - Connected to Elasticsearch version: 8.13.4
+2026-05-31 14:18:51 - PersianSearch - INFO - Connected to MongoDB: email_db.emails
+2026-05-31 14:18:51 - PersianSearch - INFO - Starting full sync from MongoDB to Elasticsearch
+2026-05-31 14:18:51 - PersianSearch - INFO - Index persian_emails already exists
+2026-05-31 14:18:51 - PersianSearch - INFO - Retrieved 50 emails from MongoDB
+2026-05-31 14:18:54 - PersianSearch - INFO - Bulk indexed: 50 successful, 0 failed
+2026-05-31 14:18:54 - PersianSearch - INFO - Sync completed: 50/50 emails synced
+2026-05-31 14:37:04 - PersianSearch - INFO - Log file created at: D:\Educational\Full project (Persian_Search)\logs\persian_search_20260531.log
+2026-05-31 14:37:04 - PersianSearch - INFO - Test message
