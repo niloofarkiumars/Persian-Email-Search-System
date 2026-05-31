@@ -1,0 +1,7 @@
+Your Elasticsearch password is: dIcyzl4PNL=G4j5VZp4Y
+
+Your connection URL is: https://localhost:9200
+
+CA fingerprint: 3635e7e4553492dde33b482422aa70ec2647e905bad5eb791fa998bc7a3de816
+
+
