@@ -7,3 +7,10 @@
 2026-05-31 14:18:54 - PersianSearch - INFO - Sync completed: 50/50 emails synced
 2026-05-31 14:37:04 - PersianSearch - INFO - Log file created at: D:\Educational\Full project (Persian_Search)\logs\persian_search_20260531.log
 2026-05-31 14:37:04 - PersianSearch - INFO - Test message
+2026-05-31 16:28:48 - PersianSearch - INFO - Log file created at: D:\Educational\Full project (Persian_Search)\logs\persian_search_20260531.log
+2026-05-31 16:29:05 - PersianSearch - ERROR - Failed to connect to Elasticsearch: Connection error caused by: ConnectionError(Connection error caused by: NewConnectionError(HTTPSConnection(host='localhost', port=9200): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it))
+2026-05-31 16:30:02 - PersianSearch - INFO - Log file created at: D:\Educational\Full project (Persian_Search)\logs\persian_search_20260531.log
+2026-05-31 16:30:03 - PersianSearch - INFO - Connected to Elasticsearch version: 8.13.4
+2026-05-31 16:30:09 - PersianSearch - INFO - Search for 'گزارش' returned 18 results
+2026-05-31 16:30:16 - PersianSearch - INFO - Search for 'زار' returned 0 results
+2026-05-31 16:30:28 - PersianSearch - INFO - Search for 'ارسال' returned 20 results
