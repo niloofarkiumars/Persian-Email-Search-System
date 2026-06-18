@@ -66,28 +66,37 @@ search.semantic_search_text("گزارش ماهیانه")
 
 For semantic search, the app supports two offline modes:
 
-1. Built-in `hash` mode: deterministic local vectors from normalized Persian
+1. Default `sentence_transformer` mode: uses the bundled local model at
+   `models/paraphrase-multilingual-MiniLM-L12-v2`.
+2. Built-in `hash` mode: deterministic local vectors from normalized Persian
    words, optional stems, word bigrams, and character ngrams. This requires no
    online API and no model download.
-2. `sentence_transformer` mode: uses a local sentence-transformers model
-   directory. The app intentionally requires a filesystem path and does not
-   download a model at runtime.
+
+The app intentionally loads the sentence-transformer from a filesystem path and
+does not download a model at runtime.
 
 ```bash
 python3 -m pip install -r requirements-semantic
 ```
 
-Then configure `.env`:
+Default `.env` values:
 
 ```bash
 SEMANTIC_BACKEND=sentence_transformer
-SEMANTIC_MODEL_PATH=/absolute/path/to/local/sentence-transformer-model
+SEMANTIC_MODEL_PATH=models/paraphrase-multilingual-MiniLM-L12-v2
 SEMANTIC_VECTOR_DIMS=384
 ```
 
-`SEMANTIC_VECTOR_DIMS` must match the model output dimension. After changing the
-semantic backend or model, recreate and resync the Elasticsearch index so stored
-document vectors are regenerated.
+The bundled model files are stored with Git LFS because the model weights are
+large. After cloning, run:
+
+```bash
+git lfs pull
+```
+
+`SEMANTIC_VECTOR_DIMS` must match the model output dimension. The bundled model
+uses 384 dimensions. After changing the semantic backend or model, recreate and
+resync the Elasticsearch index so stored document vectors are regenerated.
 
 You can still pass your own `semanticVector` values if you later choose another
 local embedding pipeline.

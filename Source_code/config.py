@@ -27,8 +27,11 @@ class Config:
     BATCH_SIZE = int(os.getenv('BATCH_SIZE', '100'))
     LOG_DIR = os.getenv('LOG_DIR', 'logs')  # Add this line
     SEMANTIC_VECTOR_DIMS = int(os.getenv('SEMANTIC_VECTOR_DIMS', '384'))
-    SEMANTIC_BACKEND = os.getenv('SEMANTIC_BACKEND', 'hash').lower()
-    SEMANTIC_MODEL_PATH = os.getenv('SEMANTIC_MODEL_PATH', '')
+    SEMANTIC_BACKEND = os.getenv('SEMANTIC_BACKEND', 'sentence_transformer').lower()
+    SEMANTIC_MODEL_PATH = os.getenv(
+        'SEMANTIC_MODEL_PATH',
+        os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'paraphrase-multilingual-MiniLM-L12-v2')
+    )
 
     @classmethod
     def validate(cls):
