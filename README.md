@@ -64,11 +64,33 @@ search.semantic_search(query_vector=[0.01, 0.02, ...])
 search.semantic_search_text("گزارش ماهیانه")
 ```
 
-For semantic search, the app now generates deterministic offline vectors from
-normalized Persian words, optional stems, word bigrams, and character ngrams.
-This requires no online API and no model download. You can still pass your own
-`semanticVector` values if you later choose a stronger local embedding model.
-Set `SEMANTIC_VECTOR_DIMS` in `.env` if you need a dimension other than `384`.
+For semantic search, the app supports two offline modes:
+
+1. Built-in `hash` mode: deterministic local vectors from normalized Persian
+   words, optional stems, word bigrams, and character ngrams. This requires no
+   online API and no model download.
+2. `sentence_transformer` mode: uses a local sentence-transformers model
+   directory. The app intentionally requires a filesystem path and does not
+   download a model at runtime.
+
+```bash
+python3 -m pip install -r requirements-semantic
+```
+
+Then configure `.env`:
+
+```bash
+SEMANTIC_BACKEND=sentence_transformer
+SEMANTIC_MODEL_PATH=/absolute/path/to/local/sentence-transformer-model
+SEMANTIC_VECTOR_DIMS=384
+```
+
+`SEMANTIC_VECTOR_DIMS` must match the model output dimension. After changing the
+semantic backend or model, recreate and resync the Elasticsearch index so stored
+document vectors are regenerated.
+
+You can still pass your own `semanticVector` values if you later choose another
+local embedding pipeline.
 
 Parsivar is supported optionally. If installed, the normalizer uses Parsivar for
 Persian normalization, tokenization, and stemming; otherwise it falls back to

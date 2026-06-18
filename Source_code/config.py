@@ -27,6 +27,8 @@ class Config:
     BATCH_SIZE = int(os.getenv('BATCH_SIZE', '100'))
     LOG_DIR = os.getenv('LOG_DIR', 'logs')  # Add this line
     SEMANTIC_VECTOR_DIMS = int(os.getenv('SEMANTIC_VECTOR_DIMS', '384'))
+    SEMANTIC_BACKEND = os.getenv('SEMANTIC_BACKEND', 'hash').lower()
+    SEMANTIC_MODEL_PATH = os.getenv('SEMANTIC_MODEL_PATH', '')
 
     @classmethod
     def validate(cls):

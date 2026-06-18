@@ -8,6 +8,9 @@ and the query bodies sent to ElasticsearchService._execute_search.
 import sys
 import types
 
+from Source_code.config import config
+from Source_code.utils.offline_semantic import generate_offline_semantic_vector
+
 
 elasticsearch_stub = types.ModuleType("elasticsearch")
 elasticsearch_stub.Elasticsearch = object
@@ -115,3 +118,22 @@ def test_semantic_search_text_generates_query_vector():
     params = captured["query_body"]["query"]["script_score"]["script"]["params"]
     assert len(params["query_vector"]) == 384
     assert any(value != 0 for value in params["query_vector"])
+
+
+def test_sentence_transformer_backend_requires_local_model_path(monkeypatch):
+    monkeypatch.setattr(config, "SEMANTIC_BACKEND", "sentence_transformer")
+    monkeypatch.setattr(config, "SEMANTIC_MODEL_PATH", "HooshvareLab/sentence-transformer-fa")
+
+    vector = generate_offline_semantic_vector("گزارش ماهیانه", dims=32)
+
+    assert len(vector) == 32
+    assert any(value != 0 for value in vector)
+
+
+def test_hash_semantic_vector_keeps_requested_dimensions(monkeypatch):
+    monkeypatch.setattr(config, "SEMANTIC_BACKEND", "hash")
+
+    vector = generate_offline_semantic_vector("گزارش ماهیانه", dims=64)
+
+    assert len(vector) == 64
+    assert any(value != 0 for value in vector)
