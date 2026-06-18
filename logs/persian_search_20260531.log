@@ -14,3 +14,6 @@
 2026-05-31 16:30:09 - PersianSearch - INFO - Search for 'گزارش' returned 18 results
 2026-05-31 16:30:16 - PersianSearch - INFO - Search for 'زار' returned 0 results
 2026-05-31 16:30:28 - PersianSearch - INFO - Search for 'ارسال' returned 20 results
+2026-05-31 17:19:25 - PersianSearch - INFO - Log file created at: D:\Educational\Full project (Persian_Search)\logs\persian_search_20260531.log
+2026-05-31 17:19:25 - PersianSearch - INFO - Connected to Elasticsearch version: 8.13.4
+2026-05-31 17:19:34 - PersianSearch - INFO - Search for 'گزارش' returned 18 results

@@ -2,6 +2,10 @@
 Search view - user interface
 """
 
+import  string
+
+print(string.punctuation)
+
 from typing import Dict, Any
 from colorama import init, Fore, Style
 from Source_code.controllers.search_controller import SearchController
