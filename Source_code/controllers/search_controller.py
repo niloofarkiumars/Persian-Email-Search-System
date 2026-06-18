@@ -26,6 +26,43 @@ class SearchController:
             'results': results
         }
 
+    def search_exact_ignore_space(self, query: str, field: str = None, size: int = 20) -> Dict[str, Any]:
+        """Search exact normalized text while ignoring spaces."""
+        if not query or not query.strip():
+            return {'results': [], 'total': 0, 'query': query}
+
+        results = self.es_service.search_exact_ignore_space(query.strip(), field=field, size=size)
+        return {'query': query, 'field': field, 'total': len(results), 'results': results}
+
+    def search_words(self, query: str, fields: List[str] = None, ordered: bool = False, size: int = 20) -> Dict[str, Any]:
+        """Search all words either in exact order or any order."""
+        if not query or not query.strip():
+            return {'results': [], 'total': 0, 'query': query}
+
+        results = self.es_service.search_words(query.strip(), fields=fields, ordered=ordered, size=size)
+        return {'query': query, 'ordered': ordered, 'total': len(results), 'results': results}
+
+    def search_field(self, query: str, field: str, size: int = 20) -> Dict[str, Any]:
+        """Search inside one specific field such as subject, body, from, to, or cc."""
+        if not query or not query.strip():
+            return {'results': [], 'total': 0, 'query': query}
+
+        results = self.es_service.search_field(query.strip(), field=field, size=size)
+        return {'query': query, 'field': field, 'total': len(results), 'results': results}
+
+    def search_ngram(self, query: str, fields: List[str] = None, size: int = 20) -> Dict[str, Any]:
+        """Search partial Persian words using ngram fields."""
+        if not query or not query.strip():
+            return {'results': [], 'total': 0, 'query': query}
+
+        results = self.es_service.search_ngram(query.strip(), fields=fields, size=size)
+        return {'query': query, 'total': len(results), 'results': results}
+
+    def semantic_search(self, query_vector: List[float], size: int = 20) -> Dict[str, Any]:
+        """Search by embedding vector. Query text must be embedded before calling this."""
+        results = self.es_service.semantic_search(query_vector=query_vector, size=size)
+        return {'total': len(results), 'results': results}
+
     def search_advanced(self,
                         text: str = None,
                         from_email: str = None,
@@ -42,7 +79,8 @@ class SearchController:
         # This is a template - customize based on your needs
         logger.info(f"Advanced search: text={text}, from={from_email}")
 
-        # Placeholder implementation
+        if from_email:
+            return self.search_field(from_email, field="from", size=size)
         if text:
             return self.search(text, size=size)
 

@@ -5,6 +5,7 @@ Email data model
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 from dataclasses import dataclass, field
+from Source_code.utils.persian_normalizer import normalize_persian_text, normalize_persian_no_space
 
 
 @dataclass
@@ -27,6 +28,7 @@ class Email:
     is_read: bool = False
     priority: str = "normal"
     labels: List[str] = field(default_factory=list)
+    semantic_vector: Optional[List[float]] = None
 
     # Metadata
     created_at: Optional[datetime] = None
@@ -56,19 +58,35 @@ class Email:
 
     def to_elasticsearch(self) -> Dict[str, Any]:
         """Convert to Elasticsearch document"""
-        return {
+        subject = normalize_persian_text(self.subject)
+        body = normalize_persian_text(self.body)
+        from_address = normalize_persian_text(self.from_address)
+        to_addresses = normalize_persian_text(self.to_addresses)
+        cc_addresses = normalize_persian_text(self.cc_addresses)
+
+        document = {
             "messageId": self.message_id,
-            "subject": self.subject,
-            "body": self.body,
-            "from": self.from_address,
-            "to": " ".join(self.to_addresses),  # Join for searching
-            "cc": " ".join(self.cc_addresses),
+            "subject": subject,
+            "body": body,
+            "from": from_address,
+            "to": to_addresses,
+            "cc": cc_addresses,
+            "subjectExact": normalize_persian_no_space(subject),
+            "bodyExact": normalize_persian_no_space(body),
+            "fromExact": normalize_persian_no_space(from_address),
+            "toExact": normalize_persian_no_space(to_addresses),
+            "ccExact": normalize_persian_no_space(cc_addresses),
             "date": self.date or datetime.now(),
             "hasAttachment": self.has_attachment,
             "priority": self.priority,
             "folder": self.folder,
             "isRead": self.is_read
         }
+
+        if self.semantic_vector:
+            document["semanticVector"] = self.semantic_vector
+
+        return document
 
     @classmethod
     def from_mongodb(cls, doc: Dict[str, Any]) -> 'Email':
