@@ -54,6 +54,50 @@ def es_service():
                 to_addresses=["مدیریت@example.com"],
             ).to_elasticsearch(),
         ),
+        (
+            "4",
+            Email(
+                message_id="4",
+                subject="پرداخت حقوق کارکنان",
+                body="فایل واریز دستمزد و حقوق این ماه برای همه کارکنان آماده شد.",
+                from_address="payroll@example.com",
+                to_addresses=["منابع-انسانی@example.com"],
+            ).to_elasticsearch(),
+        ),
+        (
+            "5",
+            Email(
+                message_id="5",
+                subject="گزارش بلند پروژه",
+                body=(
+                    "این پیام شامل توضیحات طولانی درباره وضعیت پروژه، برنامه زمان‌بندی، "
+                    "ریسک‌ها، تصمیم‌های مدیریتی و جمع‌بندی نهایی گزارش پروژه است. "
+                    * 20
+                ),
+                from_address="pm@example.com",
+                to_addresses=["team@example.com"],
+            ).to_elasticsearch(),
+        ),
+        (
+            "6",
+            Email(
+                message_id="6",
+                subject="Meeting درباره Project Phoenix",
+                body="جلسه فردا درباره project phoenix و گزارش فنی API برگزار می‌شود.",
+                from_address="tech@example.com",
+                to_addresses=["engineering@example.com"],
+            ).to_elasticsearch(),
+        ),
+        (
+            "7",
+            Email(
+                message_id="7",
+                subject="دعوت به ناهار",
+                body="برای ناهار فردا رستوران رزرو شده است.",
+                from_address="office@example.com",
+                to_addresses=["all@example.com"],
+            ).to_elasticsearch(),
+        ),
     ]
     assert service.bulk_index(documents) == len(documents)
     service.es.indices.refresh(index=service.index_name)
@@ -65,6 +109,10 @@ def es_service():
 
 def ids(results):
     return {result["id"] for result in results}
+
+
+def ordered_ids(results):
+    return [result["id"] for result in results]
 
 
 def test_exact_match_ignores_spaces_and_half_spaces(es_service):
@@ -114,3 +162,28 @@ def test_ngram_partial_word_search(es_service):
 def test_offline_semantic_text_search(es_service):
     results = es_service.semantic_search_text("گزارش ماهیانه")
     assert "3" in ids(results)
+
+
+def test_semantic_search_finds_monthly_report_for_broad_monthly_query(es_service):
+    results = es_service.semantic_search_text("خلاصه عملکرد این ماه", size=5)
+    assert "3" in ordered_ids(results)
+
+
+def test_semantic_search_finds_salary_for_wage_query(es_service):
+    results = es_service.semantic_search_text("واریز دستمزد", size=5)
+    assert ordered_ids(results)[0] == "4"
+
+
+def test_semantic_search_handles_persian_typo_like_query(es_service):
+    results = es_service.semantic_search_text("گزارش پروزه", size=5)
+    assert ordered_ids(results)[0] in {"2", "5"}
+
+
+def test_semantic_search_handles_long_email_content(es_service):
+    results = es_service.semantic_search_text("ریسک های برنامه زمان بندی پروژه", size=5)
+    assert ordered_ids(results)[0] == "5"
+
+
+def test_semantic_search_handles_mixed_persian_english_query(es_service):
+    results = es_service.semantic_search_text("phoenix API جلسه", size=5)
+    assert ordered_ids(results)[0] == "6"
