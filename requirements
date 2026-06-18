@@ -7,3 +7,4 @@ pytest-benchmark==4.0.0
 pandas==2.1.0
 colorama==0.4.6
 tqdm==4.66.0
+sentence-transformers>=2.7.0
