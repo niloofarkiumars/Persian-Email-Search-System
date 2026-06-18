@@ -6,6 +6,85 @@ A complete, production-ready Persian/Farsi full-text search system for email dat
 
 ## 📋 What You Need to Customize
 
+## Persian/Farsi Search Support
+
+The Elasticsearch index uses a custom Persian analyzer instead of the default
+standard analyzer. It improves matching for common Persian search issues:
+
+- Arabic `ي` / `ك` are normalized to Persian `ی` / `ک`.
+- Alef maksura and related Yeh variants are normalized.
+- Persian and Arabic digits are normalized through `decimal_digit`.
+- Arabic diacritics are removed.
+- Zero-width non-joiner / half-space is treated as a separator, so forms like
+  `می‌روم`, `می روم`, and similar variants are easier to match.
+- Persian stop words are removed at index time.
+
+After changing analyzer settings, recreate and resync the index:
+
+```python
+from Source_code.controllers.sync_controller import SyncController
+
+sync = SyncController()
+sync.sync_all(force_recreate_index=True)
+```
+
+Elasticsearch analyzers are applied when documents are indexed, so old indexed
+documents will not benefit from these changes until they are reindexed.
+
+### Search Modes
+
+```python
+from Source_code.controllers.search_controller import SearchController
+
+search = SearchController()
+
+# General Persian full-text search with typo tolerance and ngram partial matching
+search.search("گزارش پروژه")
+
+# Exact normalized match while ignoring spaces / half-spaces
+search.search_exact_ignore_space("می روم", field="body")
+
+# Search all words in the same order
+search.search_words("گزارش پروژه مالی", ordered=True)
+
+# Search all words in any order
+search.search_words("گزارش پروژه مالی", ordered=False)
+
+# Search inside one field only: subject, body, from, to, or cc
+search.search_field("مدیریت", field="subject")
+
+# Explicit ngram / partial-word search
+search.search_ngram("گزار")
+
+# Semantic search requires embeddings generated outside this repo for now.
+# The query vector and stored document vectors must come from the same model.
+search.semantic_search(query_vector=[0.01, 0.02, ...])
+```
+
+For semantic search, set `SEMANTIC_VECTOR_DIMS` in `.env` to match your
+embedding model dimension. Documents must include `semanticVector` values during
+indexing before semantic search can return results.
+
+### Testing
+
+Offline tests that do not require Elasticsearch:
+
+```bash
+python3 -m pytest Source_code/tests/test_persian_normalizer.py Source_code/tests/test_persian_search_service.py
+```
+
+Full test suite with local Elasticsearch:
+
+```bash
+docker run --name persian-search-es-test -d -p 9200:9200 \
+  -e discovery.type=single-node \
+  -e xpack.security.enabled=false \
+  -e ES_JAVA_OPTS='-Xms512m -Xmx512m' \
+  docker.elastic.co/elasticsearch/elasticsearch:8.14.1
+
+ES_HOST=http://localhost:9200 ES_PASSWORD=test python3 -m pytest Source_code/tests
+```
+
 ### 1. Database Schema Mapping
 
 **Most Important**: Your team MUST customize the field mappings in `src/models/email_model.py`:
@@ -41,4 +120,3 @@ C:\elasticsearch\bin\elasticsearch.bat
 # Install Docker Desktop
 # Then run:
 docker run -d --name mongodb-container -p 27017:27017 mongo:latest
-
