@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import List, Optional, Dict, Any
 from dataclasses import dataclass, field
 from Source_code.utils.persian_normalizer import normalize_persian_text, normalize_persian_no_space
+from Source_code.utils.offline_semantic import generate_offline_semantic_vector
 
 
 @dataclass
@@ -83,8 +84,9 @@ class Email:
             "isRead": self.is_read
         }
 
-        if self.semantic_vector:
-            document["semanticVector"] = self.semantic_vector
+        document["semanticVector"] = self.semantic_vector or generate_offline_semantic_vector(
+            " ".join([subject, body, from_address, to_addresses, cc_addresses])
+        )
 
         return document
 

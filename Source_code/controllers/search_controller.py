@@ -63,6 +63,14 @@ class SearchController:
         results = self.es_service.semantic_search(query_vector=query_vector, size=size)
         return {'total': len(results), 'results': results}
 
+    def semantic_search_text(self, query: str, size: int = 20) -> Dict[str, Any]:
+        """Offline semantic search from Persian query text."""
+        if not query or not query.strip():
+            return {'results': [], 'total': 0, 'query': query}
+
+        results = self.es_service.semantic_search_text(query=query.strip(), size=size)
+        return {'query': query, 'total': len(results), 'results': results}
+
     def search_advanced(self,
                         text: str = None,
                         from_email: str = None,

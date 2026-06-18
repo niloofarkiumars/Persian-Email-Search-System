@@ -51,6 +51,7 @@ def test_prepare_document_normalizes_text_and_exact_fields():
     assert document["to"] == "کاربر 123"
     assert document["bodyExact"] == "میروم"
     assert document["toExact"] == "کاربر123"
+    assert len(document["semanticVector"]) == 384
 
 
 def test_exact_ignore_space_uses_exact_fields_and_normalized_query():
@@ -103,3 +104,14 @@ def test_ngram_search_uses_ngram_subfields():
 
     fields = captured["query_body"]["query"]["multi_match"]["fields"]
     assert fields == ["subject.ngram", "body.ngram"]
+
+
+def test_semantic_search_text_generates_query_vector():
+    service = make_service()
+    captured = capture_query(service)
+
+    service.semantic_search_text("گزارش ماهیانه")
+
+    params = captured["query_body"]["query"]["script_score"]["script"]["params"]
+    assert len(params["query_vector"]) == 384
+    assert any(value != 0 for value in params["query_vector"])

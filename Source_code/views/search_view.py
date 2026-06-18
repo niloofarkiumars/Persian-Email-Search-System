@@ -2,11 +2,14 @@
 Search view - user interface
 """
 
-import  string
-
-print(string.punctuation)
-
+import os
+import sys
 from typing import Dict, Any
+
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 from colorama import init, Fore, Style
 from Source_code.controllers.search_controller import SearchController
 from Source_code.utils.logger import logger
@@ -35,8 +38,7 @@ class SearchView:
                 if not query:
                     continue
 
-                # Perform search
-                result = self.controller.search(query)
+                result = self.controller.search_words(query, ordered=False)
                 self._print_results(result)
 
             except KeyboardInterrupt:

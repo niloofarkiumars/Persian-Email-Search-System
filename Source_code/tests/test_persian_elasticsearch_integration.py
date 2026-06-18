@@ -44,6 +44,16 @@ def es_service():
                 to_addresses=["team@example.com"],
             ).to_elasticsearch(),
         ),
+        (
+            "3",
+            Email(
+                message_id="3",
+                subject="گزارش ماهیانه فروش",
+                body="این ایمیل شامل گزارش ماهیانه فروش و وضعیت مالی است.",
+                from_address="حسابداری@example.com",
+                to_addresses=["مدیریت@example.com"],
+            ).to_elasticsearch(),
+        ),
     ]
     assert service.bulk_index(documents) == len(documents)
     service.es.indices.refresh(index=service.index_name)
@@ -80,6 +90,14 @@ def test_unordered_word_search_allows_any_order(es_service):
     assert {"1", "2"}.issubset(ids(results))
 
 
+def test_monthly_report_search_allows_reversed_word_order(es_service):
+    forward_results = es_service.search_words("گزارش ماهیانه", ordered=False, fields=["subject", "body"])
+    reversed_results = es_service.search_words("ماهیانه گزارش", ordered=False, fields=["subject", "body"])
+
+    assert "3" in ids(forward_results)
+    assert "3" in ids(reversed_results)
+
+
 def test_field_specific_search(es_service):
     subject_results = es_service.search_field("مدیریت", field="subject")
     body_results = es_service.search_field("مدیریت", field="body")
@@ -91,3 +109,8 @@ def test_field_specific_search(es_service):
 def test_ngram_partial_word_search(es_service):
     results = es_service.search_ngram("گزا", fields=["subject", "body"])
     assert {"1", "2"}.intersection(ids(results))
+
+
+def test_offline_semantic_text_search(es_service):
+    results = es_service.semantic_search_text("گزارش ماهیانه")
+    assert "3" in ids(results)

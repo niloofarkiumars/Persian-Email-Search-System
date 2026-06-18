@@ -7,6 +7,7 @@ from typing import List, Dict, Any, Optional
 from Source_code.utils.logger import logger
 from Source_code.config import config
 from Source_code.utils.persian_normalizer import normalize_persian_no_space, normalize_persian_text
+from Source_code.utils.offline_semantic import generate_offline_semantic_vector
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -273,6 +274,11 @@ class ElasticsearchService:
             prepared[text_field] = normalized_value
             prepared[exact_field] = normalize_persian_no_space(normalized_value)
 
+        if not prepared.get("semanticVector"):
+            prepared["semanticVector"] = generate_offline_semantic_vector(
+                " ".join(prepared.get(field, "") for field in self.TEXT_FIELDS)
+            )
+
         return prepared
 
     def _execute_search(self, query_body: Dict[str, Any]) -> List[Dict]:
@@ -457,6 +463,11 @@ class ElasticsearchService:
             },
             "size": size
         })
+
+    def semantic_search_text(self, query: str, size: int = 20) -> List[Dict]:
+        """Offline semantic search from query text using the local vectorizer."""
+        query_vector = generate_offline_semantic_vector(query)
+        return self.semantic_search(query_vector=query_vector, size=size)
 
     def delete_index(self) -> bool:
         """Delete the index"""

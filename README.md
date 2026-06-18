@@ -59,11 +59,40 @@ search.search_ngram("گزار")
 # Semantic search requires embeddings generated outside this repo for now.
 # The query vector and stored document vectors must come from the same model.
 search.semantic_search(query_vector=[0.01, 0.02, ...])
+
+# Offline semantic search by text, no online service or model download required
+search.semantic_search_text("گزارش ماهیانه")
 ```
 
-For semantic search, set `SEMANTIC_VECTOR_DIMS` in `.env` to match your
-embedding model dimension. Documents must include `semanticVector` values during
-indexing before semantic search can return results.
+For semantic search, the app now generates deterministic offline vectors from
+normalized Persian words, optional stems, word bigrams, and character ngrams.
+This requires no online API and no model download. You can still pass your own
+`semanticVector` values if you later choose a stronger local embedding model.
+Set `SEMANTIC_VECTOR_DIMS` in `.env` if you need a dimension other than `384`.
+
+Parsivar is supported optionally. If installed, the normalizer uses Parsivar for
+Persian normalization, tokenization, and stemming; otherwise it falls back to
+the built-in local implementation.
+
+```bash
+python3 -m pip install parsivar
+```
+
+### Search View
+
+PyCharm can run the file directly:
+
+```bash
+ES_HOST=http://localhost:9200 ES_PASSWORD=test python3 Source_code/views/search_view.py
+```
+
+The interactive search view uses unordered all-word search, so these two queries
+should both match the same monthly report email when that email is indexed:
+
+```text
+گزارش ماهیانه
+ماهیانه گزارش
+```
 
 ### Testing
 
