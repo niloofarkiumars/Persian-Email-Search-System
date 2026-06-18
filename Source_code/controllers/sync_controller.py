@@ -74,6 +74,16 @@ class SyncController:
         logger.info(f"Sync completed: {synced}/{total} emails synced")
         return result
 
+    def sync_semantic_vectors(self) -> Dict[str, Any]:
+        """Ensure current MongoDB emails are indexed with semantic vectors."""
+        force_recreate_index = not self.es_service.has_semantic_vector_mapping()
+        if force_recreate_index:
+            logger.info("Semantic vector mapping is missing or stale; recreating Elasticsearch index")
+        else:
+            logger.info("Semantic vector mapping exists; refreshing indexed documents")
+
+        return self.sync_all(force_recreate_index=force_recreate_index)
+
     def sync_incremental(self, last_sync_date) -> Dict[str, Any]:
         """
         Sync only new emails since last sync

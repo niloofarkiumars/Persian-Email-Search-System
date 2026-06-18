@@ -12,6 +12,7 @@ if PROJECT_ROOT not in sys.path:
 
 from colorama import init, Fore, Style
 from Source_code.controllers.search_controller import SearchController
+from Source_code.controllers.sync_controller import SyncController
 from Source_code.utils.logger import logger
 
 init(autoreset=True)  # Initialize colorama
@@ -21,7 +22,21 @@ class SearchView:
     """Command-line interface for search"""
 
     def __init__(self):
+        self._sync_semantic_vectors_on_startup()
         self.controller = SearchController()
+
+    def _sync_semantic_vectors_on_startup(self):
+        """Refresh Elasticsearch documents with semantic vectors before searching."""
+        try:
+            print(f"{Fore.CYAN}Preparing semantic search index...{Style.RESET_ALL}")
+            result = SyncController().sync_semantic_vectors()
+            print(
+                f"{Fore.GREEN}Semantic index ready: "
+                f"{result.get('synced', 0)}/{result.get('total', 0)} emails synced{Style.RESET_ALL}"
+            )
+        except Exception as e:
+            logger.error(f"Startup semantic sync failed: {e}")
+            print(f"{Fore.YELLOW}Semantic startup sync failed; continuing with existing index.{Style.RESET_ALL}")
 
     def run_interactive(self):
         """Run interactive search session"""
@@ -38,7 +53,9 @@ class SearchView:
                 if not query:
                     continue
 
-                result = self.controller.search_words(query, ordered=False)
+                result = self.controller.semantic_search_text(query)
+                if result['total'] == 0:
+                    result = self.controller.search_words(query, ordered=False)
                 self._print_results(result)
 
             except KeyboardInterrupt:

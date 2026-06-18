@@ -219,6 +219,23 @@ class ElasticsearchService:
             logger.error(f"Failed to create index: {e}")
             return False
 
+    def has_semantic_vector_mapping(self) -> bool:
+        """Return whether the current index has the expected semantic vector mapping."""
+        try:
+            if not self.es.indices.exists(index=self.index_name):
+                return False
+
+            mapping = self.es.indices.get_mapping(index=self.index_name)
+            properties = mapping[self.index_name]["mappings"].get("properties", {})
+            semantic_mapping = properties.get("semanticVector", {})
+            return (
+                semantic_mapping.get("type") == "dense_vector"
+                and semantic_mapping.get("dims") == config.SEMANTIC_VECTOR_DIMS
+            )
+        except Exception as e:
+            logger.warning(f"Could not verify semantic vector mapping: {e}")
+            return False
+
     def index_document(self, doc_id: str, document: Dict[str, Any]) -> bool:
         """Index a single document"""
         try:
